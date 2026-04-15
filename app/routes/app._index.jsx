@@ -45,6 +45,15 @@ export default function HomePage() {
             gap: "16px",
           }}
         >
+          <s-link href="/app/clientes" style={cardStyle}>
+            <span style={iconStyle}>🧑‍💼</span>
+            <p style={titleStyle}>Clientes</p>
+            <p style={descStyle}>
+              Filtra clientes por período, ve cuánto gastaron, cuántas órdenes
+              hicieron y exporta el listado a CSV.
+            </p>
+          </s-link>
+
           <s-link href="/app/retention" style={cardStyle}>
             <span style={iconStyle}>👥</span>
             <p style={titleStyle}>Retención de Clientes</p>
