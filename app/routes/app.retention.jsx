@@ -1,4 +1,4 @@
-import { useLoaderData, Form } from "react-router";
+import { useLoaderData, Form, useNavigation } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 
@@ -226,8 +226,19 @@ const inputStyle = {
 
 // ─── Componente ────────────────────────────────────────────────────────────
 
+const spinnerStyle = {
+  width: "36px",
+  height: "36px",
+  border: "3px solid #e1e3e5",
+  borderTop: "3px solid #008060",
+  borderRadius: "50%",
+  animation: "spin 0.8s linear infinite",
+};
+
 export default function RetentionPage() {
   const { rows, totals, filters } = useLoaderData();
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
 
   // ── Exportar CSV ──────────────────────────────────────────────────────────
   const handleExportCSV = () => {
@@ -320,6 +331,22 @@ export default function RetentionPage() {
 
   return (
     <s-page heading="Retención de Clientes Nuevos">
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
+      {isLoading && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(255,255,255,0.75)",
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          zIndex: 9999, gap: "14px",
+        }}>
+          <div style={spinnerStyle} />
+          <p style={{ color: "#202223", fontWeight: "500", fontSize: "14px", margin: 0 }}>
+            Aplicando filtros…
+          </p>
+        </div>
+      )}
 
       {/* ── Filtros ── */}
       <s-section heading="Filtros">
