@@ -6,7 +6,7 @@ import { authenticate } from "../shopify.server";
 
 const ORDERS_QUERY = `
   query getOrders($cursor: String) {
-    orders(first: 250, after: $cursor, query: "financial_status:paid") {
+    orders(first: 250, after: $cursor, query: "status:any financial_status:paid") {
       edges {
         cursor
         node {

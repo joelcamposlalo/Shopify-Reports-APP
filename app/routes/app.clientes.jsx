@@ -23,6 +23,11 @@ const ORDERS_QUERY = `
             firstName
             lastName
             email
+            defaultAddress {
+              city
+              province
+              country
+            }
           }
         }
       }
@@ -50,6 +55,7 @@ export const loader = async ({ request }) => {
   const queryFilter = [
     `created_at:>='${dateStart}T00:00:00Z'`,
     `created_at:<='${dateEnd}T23:59:59Z'`,
+    "status:any",
     "financial_status:paid",
   ].join(" ");
 
@@ -82,11 +88,15 @@ export const loader = async ({ request }) => {
   for (const order of validOrders) {
     const cid = order.customer.id;
     if (!byCustomer[cid]) {
+      const addr = order.customer.defaultAddress;
       byCustomer[cid] = {
-        id:        cid,
-        nombre:    `${order.customer.firstName || ""} ${order.customer.lastName || ""}`.trim() || "Sin nombre",
-        email:     order.customer.email || "—",
-        ordenes:   [],
+        id:       cid,
+        nombre:   `${order.customer.firstName || ""} ${order.customer.lastName || ""}`.trim() || "Sin nombre",
+        email:    order.customer.email || "—",
+        ciudad:   addr?.city     || "—",
+        estado:   addr?.province || "—",
+        pais:     addr?.country  || "—",
+        ordenes:  [],
       };
     }
     byCustomer[cid].ordenes.push({
@@ -104,14 +114,17 @@ export const loader = async ({ request }) => {
     const fechas       = c.ordenes.map((o) => o.fecha).sort((a, b) => a - b);
 
     return {
-      id:            c.id,
-      nombre:        c.nombre,
-      email:         c.email,
-      numOrdenes:    c.ordenes.length,
+      id:             c.id,
+      nombre:         c.nombre,
+      email:          c.email,
+      ciudad:         c.ciudad,
+      estado:         c.estado,
+      pais:           c.pais,
+      numOrdenes:     c.ordenes.length,
       totalGastado,
       ticketPromedio: totalGastado / c.ordenes.length,
-      primeraCompra: fechas[0].toISOString().substring(0, 10),
-      ultimaCompra:  fechas[fechas.length - 1].toISOString().substring(0, 10),
+      primeraCompra:  fechas[0].toISOString().substring(0, 10),
+      ultimaCompra:   fechas[fechas.length - 1].toISOString().substring(0, 10),
     };
   });
 
@@ -219,6 +232,9 @@ export default function ClientesPage() {
     const header = [
       "Nombre",
       "Email",
+      "Ciudad",
+      "Estado",
+      "País",
       "# Órdenes",
       "Total Gastado (MXN)",
       "Ticket Promedio (MXN)",
@@ -232,6 +248,9 @@ export default function ClientesPage() {
       [
         escape(c.nombre),
         escape(c.email),
+        escape(c.ciudad),
+        escape(c.estado),
+        escape(c.pais),
         c.numOrdenes,
         c.totalGastado.toFixed(2),
         c.ticketPromedio.toFixed(2),
@@ -410,6 +429,9 @@ export default function ClientesPage() {
                   <th style={{ ...thStyle, width: "32px", textAlign: "right" }}>#</th>
                   <th style={thStyle}>Nombre</th>
                   <th style={thStyle}>Email</th>
+                  <th style={thStyle}>Ciudad</th>
+                  <th style={thStyle}>Estado</th>
+                  <th style={thStyle}>País</th>
                   <th style={{ ...thStyle, textAlign: "right" }}>Órdenes</th>
                   <th style={{ ...thStyle, textAlign: "right" }}>Total gastado</th>
                   <th style={{ ...thStyle, textAlign: "right" }}>Ticket prom.</th>
@@ -427,6 +449,9 @@ export default function ClientesPage() {
                       {c.nombre}
                     </td>
                     <td style={{ ...tdStyle, color: "#6d7175" }}>{c.email}</td>
+                    <td style={{ ...tdStyle, color: "#6d7175" }}>{c.ciudad}</td>
+                    <td style={{ ...tdStyle, color: "#6d7175" }}>{c.estado}</td>
+                    <td style={{ ...tdStyle, color: "#6d7175" }}>{c.pais}</td>
                     <td style={{ ...tdStyle, textAlign: "right" }}>
                       <span
                         style={{
