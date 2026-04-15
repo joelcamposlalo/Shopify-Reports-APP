@@ -2,7 +2,7 @@
 
 client_id = "dba532d7ef39c1affd948f8d507508d7"
 name = "ReportesAPI"
-application_url = "https://example.com"
+application_url = "https://shopify-reports-app.onrender.com"
 embedded = true
 
 [build]
@@ -27,5 +27,5 @@ optional_scopes = [ ]
 use_legacy_install_flow = false
 
 [auth]
-redirect_urls = [ ]
+redirect_urls = [ "https://shopify-reports-app.onrender.com/auth/callback" ]
 
